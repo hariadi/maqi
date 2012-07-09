@@ -1,5 +1,4 @@
 <?php
-//date_default_timezone_set('UTC');
 ini_set('date.timezone', 'Asia/Kuala_Lumpur');
 //ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)');
 ini_set('max_execution_time', 0);
@@ -12,23 +11,28 @@ if(isset($_GET['d']))
     $date = date("Y-m-d");
 }
 
-$doc = new DOMDocument('1.0', 'UTF-8');
-///
-//$doc->load("2012-06-18.xml");
+$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
+//$url = "2012-06-18.xml";
+$xml = simpleXML_load_file($url,"SimpleXMLElement",LIBXML_NOCDATA); 
 
-//declare our node
-$maqi = $doc->createElement("maqi");
-$doc->appendChild($maqi);
+if($xml ===  FALSE)
+{
+   exit('Failed to open test.xml.');
+}
+else { 
+	$doc = new DOMDocument('1.0', 'UTF-8');
+	$maqi = $doc->createElement("maqi");
+	$doc->appendChild($maqi);
 
 	$credit = $doc->createElement('credit','Department of Environment Malaysia');
 	$maqi->appendChild($credit);
 
 	$credit_URL = $doc->createElement('credit_URL','http://www.doe.gov.my');
 	$maqi->appendChild($credit_URL);
-	
+
 	$image = $doc->createElement('image');
 	$maqi->appendChild($image);
-	
+
 		$image_url = $doc->createElement('image_url', 'http://icons-ak.wxug.com/graphics/wu2/logo_130x80.png');
 		$image->appendChild($image_url);
 		
@@ -37,18 +41,6 @@ $doc->appendChild($maqi);
 		
 		$image_link = $doc->createElement('image_link', 'http://github.org/diperakui/maqi');
 		$image->appendChild($image_link);	
-
-
-//We need to load XML file from DOE.
-$url = "2012-06-18.xml";
-//$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
-
-//if (file_exists($url)) {
-	//$xml = new SimpleXMLElement($url,null,true);
-	$xml = simplexml_load_file($url); 
-
-	//print_r($xml);
-	
 	
 	//Accessing marker attributes
 	foreach($xml as $marker) {
@@ -154,17 +146,10 @@ $url = "2012-06-18.xml";
 				$node_avg = $doc->createElement('average', $average);
 				$reading->appendChild($node_avg);
 	}
-	//print_r($pieces);
+	
+	header('Content-Type: text/xml');
+	echo $doc->saveXML();
 
-//} else {
- //   exit("Failed to open $url.");
-//}
+}
+?> 
 
-
-
-//output xml in your response:
-header('Content-Type: text/xml');
-//echo $doc->asXML(); 
-echo $doc->saveXML();
-
-?>
