@@ -70,8 +70,8 @@ else {
 		
 		$city = $city_x2[1];
 		$city = trim($city);
-		
-		//print_r($city_x);
+		//if $city not available, get $station value
+		if(empty($city)) $city = $station;
 		
 		//7AM
 		$morning = $pieces[4];
@@ -149,7 +149,6 @@ else {
 	
 	header('Content-Type: text/xml');
 	echo $doc->saveXML();
-
 }
 ?> 
 
