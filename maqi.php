@@ -5,14 +5,12 @@ ini_set('date.timezone', 'Asia/Kuala_Lumpur');
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '10000M');
 
-
 if(isset($_GET['d']))
 {
     $date = $_GET['d'];
 }else{
     $date = date("Y-m-d");
 }
-
 
 $doc = new DOMDocument('1.0', 'UTF-8');
 ///
@@ -42,17 +40,18 @@ $doc->appendChild($maqi);
 
 
 //We need to load XML file from DOE.
-//$url = "2012-06-18.xml";
-$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
+$url = "2012-06-18.xml";
+//$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
 
 //if (file_exists($url)) {
-	$xml = new SimpleXMLElement($url,null,true);
+	//$xml = new SimpleXMLElement($url,null,true);
+	$xml = simplexml_load_file($url); 
+
 	//print_r($xml);
 	
 	
 	//Accessing marker attributes
 	foreach($xml as $marker) {
-		//echo "Marker: {$marker['lat']}\r\n";
 
 		$lat = $marker['lat'];
 		$lng = $marker['lng'];
@@ -97,6 +96,7 @@ $url = "http://www.doe.gov.my/apims/engine.php?date=$date";
 		We got some data from DOE. Now lets creating XML file.
 		*/
 		$observation = $doc->createElement('observation');
+		
 		$maqi->appendChild($observation);
 		
 			$node_station = $doc->createElement('station', $station);
@@ -119,30 +119,36 @@ $url = "http://www.doe.gov.my/apims/engine.php?date=$date";
 			$node_longitude = $doc->createElement('longitude', $lng);
 			$observation->appendChild($node_longitude);
 			
-			
 			$reading = $doc->createElement('reading');
-			$observation->appendChild($reading);
 			
-
-			$reading_date = $doc->createElement('date', $date);
-			$reading->appendChild($reading_date);
+			$attribute = $doc->createAttribute('date');
+			$attribute->value = $date ;
+			$reading->appendChild($attribute);
+				
+			$observation->appendChild($reading);
 				
 				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +7 hours"));
 				$node_morning = $doc->createElement('morning', $morning);
-				//TODO: Add date attribute with $time value
-				//OUTPUT: <morning date="2012-04-13T20:00+08:00"/>
+				$reading->appendChild($node_morning);
+				
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_morning->appendChild($attribute);
+				
 				$reading->appendChild($node_morning);
 				
 				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +11 hours"));
 				$node_noon = $doc->createElement('noon', $noon);
-				//TODO: Add date attribute with $time value
-				//OUTPUT: <noon date="2012-04-13T20:00+08:00"/>
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_noon->appendChild($attribute);
 				$reading->appendChild($node_noon);
 				
 				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +17 hours"));
 				$node_evening = $doc->createElement('evening', $evening);
-				//TODO: Add date attribute with $time value
-				//OUTPUT: <evening date="2012-04-13T20:00+08:00"/>
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_evening->appendChild($attribute);
 				$reading->appendChild($node_evening);
 				
 				$node_avg = $doc->createElement('average', $average);
