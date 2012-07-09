@@ -6,7 +6,17 @@ ini_set('max_execution_time', 0);
 ini_set('memory_limit', '10000M');
 
 
+if(isset($_GET['d']))
+{
+    $date = $_GET['d'];
+}else{
+    $date = date("Y-m-d");
+}
+
+
 $doc = new DOMDocument('1.0', 'UTF-8');
+///
+//$doc->load("2012-06-18.xml");
 
 //declare our node
 $maqi = $doc->createElement("maqi");
@@ -33,7 +43,7 @@ $doc->appendChild($maqi);
 
 //We need to load XML file from DOE.
 //$url = "2012-06-18.xml";
-$url = "http://www.doe.gov.my/apims/engine.php?date=2012-06-18";
+$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
 
 //if (file_exists($url)) {
 	$xml = new SimpleXMLElement($url,null,true);
@@ -113,7 +123,6 @@ $url = "http://www.doe.gov.my/apims/engine.php?date=2012-06-18";
 			$reading = $doc->createElement('reading');
 			$observation->appendChild($reading);
 			
-			$date = date("Y-m-d");
 
 			$reading_date = $doc->createElement('date', $date);
 			$reading->appendChild($reading_date);
