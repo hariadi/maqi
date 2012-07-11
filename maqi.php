@@ -4,6 +4,11 @@ ini_set('date.timezone', 'Asia/Kuala_Lumpur');
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '10000M');
 
+/**
+* Get the date from URL querystring.
+* @param string query 
+* @return date YYYY-mm-dd 
+*/
 if(isset($_GET['d']))
 {
     $date = $_GET['d'];
@@ -11,9 +16,17 @@ if(isset($_GET['d']))
     $date = date("Y-m-d");
 }
 
-$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
-//$url = "2012-06-18.xml";
+// DOE URL
+//$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
+$url = "2012-06-18.xml";
+
+/**
+* Load XML from DOE xml and parsing/convert to new xml/json.
+* @param string $xml 
+* @return xml/json 
+*/
 $xml = simpleXML_load_file($url,"SimpleXMLElement",LIBXML_NOCDATA); 
+
 
 if($xml ===  FALSE)
 {
@@ -42,7 +55,6 @@ else {
 		$image_link = $doc->createElement('image_link', 'http://github.org/diperakui/maqi');
 		$image->appendChild($image_link);	
 	
-	//Accessing marker attributes
 	foreach($xml as $marker) {
 
 		$lat = $marker['lat'];
@@ -50,19 +62,18 @@ else {
 		$html = htmlentities($marker['html']);
 		
 		
-		//Clean XML file for html attribute. Ugly method. 
-		//Value we need: State, City, Station, and 3 reading for air quality (morning: 7am, noon: 11am, evening: 5pm).
+		// Clean XML file for html attribute. Ugly method. 
+		// Value we need: State, City, Station, and 3 reading for air quality (morning: 7am, noon: 11am, evening: 5pm).
 		$html = str_replace(array("\n", "\r", "\t", "&lt;b&gt;", "&lt;/b&gt;", "&lt;br&gt;"), '-', $html);
-		//echo $html;
 		$pieces = explode("-", $html);
-		//State
+		
+		// State
 		$state_tmp =$pieces[1];
 		$state_exp = explode(":", $state_tmp);
 		$state = $state_exp[1];
 		$state = trim($state);
-		//print_r($state);
 		
-		//City and Station
+		// City and Station
 		$city_x = explode(":", $pieces[2]);
 		$city_x2 = explode(",", $city_x[1]);
 		$station = $city_x2[0];	
@@ -70,23 +81,21 @@ else {
 		
 		$city = $city_x2[1];
 		$city = trim($city);
-		//if $city not available, get $station value
+		// If $city not available, get $station value
 		if(empty($city)) $city = $station;
 		
-		//7AM
+		// 7AM
 		$morning = $pieces[4];
 
-		//11AM
+		// 11AM
 		$noon = $pieces[5];
 
-		//5PM
+		// 5PM
 		$evening = $pieces[6];
 		
 		$average = $marker['api'];
 		
-		/*
-		We got some data from DOE. Now lets creating XML file.
-		*/
+		// Got some data from DOE. Now lets creating XML file.
 		$observation = $doc->createElement('observation');
 		
 		$maqi->appendChild($observation);
@@ -103,7 +112,7 @@ else {
 			$node_country = $doc->createElement('country', 'MY');
 			$observation->appendChild($node_country);
 			
-			//$node_zip = $doc->createElement('zip', '26080');
+			//$node_zip = $doc->createElement('zip', $zip);
 			//$observation->appendChild($node_zip);
 			
 			$node_latitude = $doc->createElement('latitude', $lat);
@@ -146,9 +155,16 @@ else {
 				$node_avg = $doc->createElement('average', $average);
 				$reading->appendChild($node_avg);
 	}
+	$xml = $doc->saveXML();
 	
-	header('Content-Type: text/xml');
-	echo $doc->saveXML();
+	if ($_GET['e'] == "xml")
+	{
+		header('Content-Type: text/xml');
+		echo $xml;
+	} else {
+		header('Content-Type: application/json');
+		echo json_encode(simplexml_load_string($xml));
+	}
 }
 ?> 
 
