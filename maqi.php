@@ -30,7 +30,7 @@ $xml = simpleXML_load_file($url,"SimpleXMLElement",LIBXML_NOCDATA);
 
 if($xml ===  FALSE)
 {
-   exit("Failed to open $url");
+   exit('Failed to open test.xml.');
 }
 else { 
 	$doc = new DOMDocument('1.0', 'UTF-8');
@@ -85,16 +85,13 @@ else {
 		if(empty($city)) $city = $station;
 		
 		// 7AM
-		$morning_tmp = explode(":", $pieces[4]);
-		$morning = trim($morning_tmp[2]);
+		$morning = $pieces[4];
 
 		// 11AM
-		$noon_tmp = explode(":", $pieces[5]);
-		$noon = trim($noon_tmp[2]);
+		$noon = $pieces[5];
 
 		// 5PM
-		$evening_tmp = explode(":", $pieces[6]);
-		$evening = trim($evening_tmp[2]);
+		$evening = $pieces[6];
 		
 		$average = $marker['api'];
 		
@@ -115,6 +112,9 @@ else {
 			$node_country = $doc->createElement('country', 'MY');
 			$observation->appendChild($node_country);
 			
+			//$node_zip = $doc->createElement('zip', $zip);
+			//$observation->appendChild($node_zip);
+			
 			$node_latitude = $doc->createElement('latitude', $lat);
 			$observation->appendChild($node_latitude);
 			$node_longitude = $doc->createElement('longitude', $lng);
@@ -122,28 +122,38 @@ else {
 			
 			$reading = $doc->createElement('reading');
 			
-			// observation date 
 			$attribute = $doc->createAttribute('date');
-			$attribute->value = $date;
-			$observation->appendChild($attribute);
-			
-			$attribute = $doc->createAttribute('morning');
-			$attribute->value = $morning;
-			$reading->appendChild($attribute);
-			
-			$attribute = $doc->createAttribute('noon');
-			$attribute->value = $noon;
-			$reading->appendChild($attribute);
-			
-			$attribute = $doc->createAttribute('evening');
-			$attribute->value = $evening;
-			$reading->appendChild($attribute);
-			
-			$attribute = $doc->createAttribute('average');
-			$attribute->value = $average;
+			$attribute->value = $date ;
 			$reading->appendChild($attribute);
 				
-			$observation->appendChild($reading);			
+			$observation->appendChild($reading);
+				
+				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +7 hours"));
+				$node_morning = $doc->createElement('morning', $morning);
+				$reading->appendChild($node_morning);
+				
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_morning->appendChild($attribute);
+				
+				$reading->appendChild($node_morning);
+				
+				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +11 hours"));
+				$node_noon = $doc->createElement('noon', $noon);
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_noon->appendChild($attribute);
+				$reading->appendChild($node_noon);
+				
+				$time = date('Y-m-d\TH:i:s\+08:00', strtotime($date . " +17 hours"));
+				$node_evening = $doc->createElement('evening', $evening);
+				$attribute = $doc->createAttribute('date');
+				$attribute->value = $time ;
+				$node_evening->appendChild($attribute);
+				$reading->appendChild($node_evening);
+				
+				$node_avg = $doc->createElement('average', $average);
+				$reading->appendChild($node_avg);
 	}
 	$xml = $doc->saveXML();
 	
