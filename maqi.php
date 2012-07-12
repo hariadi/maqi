@@ -17,8 +17,7 @@ if(isset($_GET['d']))
 }
 
 // DOE URL
-//$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
-$url = "2012-06-18.xml";
+$url = "http://www.doe.gov.my/apims/engine.php?date=$date";
 
 /**
 * Load XML from DOE xml and parsing/convert to new xml/json.
