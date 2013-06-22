@@ -77,11 +77,8 @@ else {
 		$city_x2 = explode(",", $city_x[1]);
 		$station = $city_x2[0];	
 		$station = trim($station);	
-		
-		$city = $city_x2[1];
-		$city = trim($city);
-		// If $city not available, get $station value
-		if(empty($city)) $city = $station;
+
+		$city = ( ! empty($city_x2[1]) ) ? trim($city_x2[1]) : $station;
 		
 		// 7AM
 		$morning_tmp = explode(":", $pieces[4]);
@@ -145,15 +142,20 @@ else {
 			$observation->appendChild($reading);			
 	}
 	$xml = $doc->saveXML();
-	
-	if ($_GET['e'] == "xml")
-	{
+
+
+	if(isset($_GET) && array_key_exists('e',$_GET) && $_GET['e'] == "xml"){
+
 		header('Content-Type: text/xml');
 		echo $xml;
-	} else {
+
+	} else{
+
 		header('Content-Type: application/json');
 		echo json_encode(simplexml_load_string($xml));
+		
 	}
+
 }
 ?> 
 
