@@ -147,15 +147,22 @@ else {
 	if(isset($_GET) && array_key_exists('e',$_GET) && $_GET['e'] == "xml"){
 
 		header('Content-Type: text/xml');
-		echo $xml;
+		$file = 'maqi.xml';
 
 	} else{
 
 		header('Content-Type: application/json');
-		echo json_encode(simplexml_load_string($xml));
+		//$xml = json_encode(simplexml_load_string($xml), JSON_PRETTY_PRINT);
+		$xml = json_encode(simplexml_load_string($xml));
+		$file = 'maqi.json';
 		
 	}
 
+	if(isset($_GET) && array_key_exists('s',$_GET) && $_GET['s'] == "save"){
+		file_put_contents($file, $xml);
+	} else {
+		echo $xml;
+	}
 }
 ?> 
 
